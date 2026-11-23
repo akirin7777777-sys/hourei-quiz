@@ -64,18 +64,18 @@ function cur(){ return R ? R.list[R.pos] : S.i; }
 function chapterIdx(ci){ return D.map((d,ix)=>ix).filter(ix=>D[ix].ch===ci); }
 function buildToc(){ const tl=document.getElementById('toclist'); if(!tl || typeof CHNAMES==='undefined' || !CHNAMES) return; let h='';
  CHNAMES.forEach((nm,ci)=>{ const idxs=chapterIdx(ci); const done=idxs.filter(ix=>S.picks[ix]!==undefined); const ok=done.filter(ix=>S.picks[ix]===D[ix].ans); const miss=done.filter(ix=>S.picks[ix]!==D[ix].ans); const allOk=(done.length===idxs.length && ok.length===idxs.length);
-  h+='<div class="tocrow"><button class="tocbtn" data-ch="'+ci+'">'+(allOk?'<span class="sumi">済</span>':'')+nm+'<span class="tocmeta">'+done.length+' / '+idxs.length+'問 回答済み'+(done.length?' ・ 正解 '+ok.length+'問':'')+'</span></button>'+((done.length===idxs.length && miss.length)?'<button class="rev toc-rev" data-rev="'+ci+'">この章の間違えた問題だけ復習（'+miss.length+'問）</button>':'')+'</div>'; });
+  h+='<div class="tocrow"><button class="tocbtn" data-ch="'+ci+'">'+(allOk?'<span class="sumi">済</span>':'')+nm+'<span class="tocmeta">'+(done.length===idxs.length ? (idxs.length+' / '+idxs.length+'問 回答済み ・ 正解率 '+Math.round(ok.length/idxs.length*100)+'%（'+ok.length+'問正解）') : (done.length+' / '+idxs.length+'問 回答済み'+(done.length?' ・ 正解 '+ok.length+'問':'')))+'</span></button>'+((done.length===idxs.length && miss.length)?'<button class="rev toc-rev" data-rev="'+ci+'">この章の間違えた問題だけ復習（'+miss.length+'問）</button>':'')+'</div>'; });
  tl.innerHTML=h;
  tl.querySelectorAll('[data-ch]').forEach(b=>{ b.onclick=()=>goChapter(Number(b.getAttribute('data-ch'))); });
  tl.querySelectorAll('[data-rev]').forEach(b=>{ b.onclick=()=>{ const ci=Number(b.getAttribute('data-rev')); const miss=chapterIdx(ci).filter(ix=>S.picks[ix]!==undefined && S.picks[ix]!==D[ix].ans); startReview(miss,'chapter'); }; });
 }
-function goChapter(ci){ const ix=D.findIndex(d=>d.ch===ci); if(ix<0) return; S.i=ix; save(); const t=document.getElementById('toc'); if(t) t.style.display='none'; const r=document.getElementById('result'); if(r) r.style.display='none'; document.getElementById('card').style.display='block'; render(); window.scrollTo(0,0); }
+function goChapter(ci){ const idxs=chapterIdx(ci); if(!idxs.length) return; const nx=idxs.find(ix=>S.picks[ix]===undefined); S.i=(nx!==undefined?nx:idxs[0]); save(); const t=document.getElementById('toc'); if(t) t.style.display='none'; const r=document.getElementById('result'); if(r) r.style.display='none'; document.getElementById('card').style.display='block'; render(); window.scrollTo(0,0); }
 function startReview(list,scope){ if(!list || !list.length) return; const t=document.getElementById('toc'); if(t) t.style.display='none'; const r=document.getElementById('result'); if(r) r.style.display='none'; document.getElementById('card').style.display='block'; R={list:list.slice(),pos:0,done:false,lastPick:null,scope:scope||'all'}; render(); window.scrollTo(0,0); }
 function showToc(){ const t=document.getElementById('toc'); if(!t || typeof CHNAMES==='undefined' || !CHNAMES) return; R=null; document.getElementById('card').style.display='none'; const r=document.getElementById('result'); if(r) r.style.display='none'; t.style.display='block'; buildToc(); window.scrollTo(0,0); }
 function render(){
  const qi=cur(), answered=S.picks[qi]!==undefined;
  document.getElementById('mode').textContent = R ? '（復習モード）' : '';
- document.getElementById('prog').textContent = R ? ('復習 '+(R.pos+1)+' / '+R.list.length+'問') : ('第'+(qi+1)+' / '+D.length+'問');
+ document.getElementById('prog').textContent = R ? ('復習 '+(R.pos+1)+' / '+R.list.length+'問') : ((typeof CHNAMES!=='undefined' && CHNAMES) ? (CHNAMES[D[qi].ch]+'：'+(chapterIdx(D[qi].ch).indexOf(qi)+1)+' / '+chapterIdx(D[qi].ch).length+'問') : ('第'+(qi+1)+' / '+D.length+'問'));
  document.getElementById('sc').textContent=score();
  document.getElementById('bar').style.width=(Object.keys(S.picks).length/D.length*100)+'%';
  document.getElementById('q').textContent=D[qi].q;
