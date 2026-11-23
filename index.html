@@ -71,7 +71,7 @@ function buildToc(){ const tl=document.getElementById('toclist'); if(!tl || type
 }
 function goChapter(ci){ const idxs=chapterIdx(ci); if(!idxs.length) return; const nx=idxs.find(ix=>S.picks[ix]===undefined); S.i=(nx!==undefined?nx:idxs[0]); save(); const t=document.getElementById('toc'); if(t) t.style.display='none'; const r=document.getElementById('result'); if(r) r.style.display='none'; document.getElementById('card').style.display='block'; render(); window.scrollTo(0,0); }
 function startReview(list,scope){ if(!list || !list.length) return; const t=document.getElementById('toc'); if(t) t.style.display='none'; const r=document.getElementById('result'); if(r) r.style.display='none'; document.getElementById('card').style.display='block'; R={list:list.slice(),pos:0,done:false,lastPick:null,scope:scope||'all'}; render(); window.scrollTo(0,0); }
-function showToc(){ const t=document.getElementById('toc'); if(!t || typeof CHNAMES==='undefined' || !CHNAMES) return; R=null; document.getElementById('card').style.display='none'; const r=document.getElementById('result'); if(r) r.style.display='none'; t.style.display='block'; buildToc(); window.scrollTo(0,0); }
+function showToc(){ const t=document.getElementById('toc'); if(!t || typeof CHNAMES==='undefined' || !CHNAMES) return; R=null; document.getElementById('mode').textContent=''; document.getElementById('card').style.display='none'; const r=document.getElementById('result'); if(r) r.style.display='none'; t.style.display='block'; buildToc(); window.scrollTo(0,0); }
 function render(){
  const qi=cur(), answered=S.picks[qi]!==undefined;
  document.getElementById('mode').textContent = R ? '（復習モード）' : '';
@@ -108,7 +108,7 @@ function render(){
  const pv=document.getElementById('prv');
  pv.style.display = (!R && S.i>0) ? 'inline-block' : 'none';
  const rv=document.getElementById('rev');
- const tb=document.getElementById('tocbtn'); if(tb) tb.style.display=(!R && document.getElementById('toc') && typeof CHNAMES!=='undefined' && CHNAMES)?'inline-block':'none';
+ const tb=document.getElementById('tocbtn'); if(tb) tb.style.display=(document.getElementById('toc') && typeof CHNAMES!=='undefined' && CHNAMES)?'inline-block':'none';
  if(!R && typeof CHNAMES!=='undefined' && CHNAMES){ const idxs=chapterIdx(D[qi].ch); const cmiss=idxs.filter(ix=>S.picks[ix]!==undefined && S.picks[ix]!==D[ix].ans); const callDone=idxs.every(ix=>S.picks[ix]!==undefined);
    if(callDone && cmiss.length){ rv.style.display='inline-block'; rv.textContent='この章の間違えた問題だけ復習（'+cmiss.length+'問）'; rv.onclick=()=>startReview(cmiss,'chapter'); }
    else rv.style.display='none';
